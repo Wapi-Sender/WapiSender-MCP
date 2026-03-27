@@ -4,11 +4,15 @@
   "description": "Official MCP server for WapiSender — send WhatsApp messages, manage flows, contacts, and instances directly from Claude Code.",
   "type": "module",
   "bin": {
-    "wapisender-mcp": "./dist/cli.js",
-    "wapisender-mcp-server": "./dist/index.js"
+    "wapisender-mcp": "dist/cli.js",
+    "wapisender-mcp-server": "dist/index.js"
   },
   "main": "./dist/index.js",
-  "files": ["dist/", "README.md", "LICENSE"],
+  "files": [
+    "dist/",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "build": "tsc",
     "dev": "node --watch --experimental-strip-types src/index.ts",
@@ -24,11 +28,20 @@
     "typescript": "^5.4.0",
     "@types/node": "^20.0.0"
   },
-  "engines": { "node": ">=20" },
+  "engines": {
+    "node": ">=20"
+  },
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Wapi-Sender/WapiSender-MCP.git"
+    "url": "git+https://github.com/Wapi-Sender/WapiSender-MCP.git"
   },
-  "keywords": ["mcp", "wapisender", "whatsapp", "claude", "claude-code", "modelcontextprotocol"]
+  "keywords": [
+    "mcp",
+    "wapisender",
+    "whatsapp",
+    "claude",
+    "claude-code",
+    "modelcontextprotocol"
+  ]
 }
