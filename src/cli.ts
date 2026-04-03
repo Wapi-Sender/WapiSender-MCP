@@ -44,9 +44,15 @@ async function status() {
   console.log(`Logged in. Credentials saved at ${creds.savedAt}`)
 }
 
+async function serve() {
+  await import('./index.js')
+}
+
 const [,, command, ...args] = process.argv
 
-if (command === 'login') {
+if (!command || command === 'serve') {
+  await serve()
+} else if (command === 'login') {
   const tokenFlag = args.indexOf('--token')
   const token = tokenFlag >= 0 ? args[tokenFlag + 1] : null
   if (!token) {
@@ -61,6 +67,8 @@ if (command === 'login') {
   await status()
 } else {
   console.log('WapiSender MCP CLI')
+  console.log('  wapisender-mcp                         Start the MCP server over stdio')
+  console.log('  wapisender-mcp serve                   Start the MCP server over stdio')
   console.log('  wapisender-mcp login --token <token>   Save credentials')
   console.log('  wapisender-mcp logout                  Remove credentials')
   console.log('  wapisender-mcp status                  Check login status')

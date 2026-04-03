@@ -1,6 +1,6 @@
 # WapiSender MCP
 
-> Official MCP server for WapiSender — send WhatsApp messages, manage flows, contacts, and instances directly from Claude Code.
+> Official MCP server for WapiSender — send WhatsApp messages, manage flows, contacts, and instances directly from MCP-compatible clients.
 
 ## Quick Start
 
@@ -14,7 +14,9 @@ Go to [wapisender.com/dashboard/settings/mcp-token](https://wapisender.com/dashb
 npx wapisender-mcp login --token <your-token>
 ```
 
-**3. Add to Claude Code**
+**3. Add to your MCP client**
+
+The package now starts the MCP server when invoked with no subcommand, so this works:
 
 Add to `~/.claude/settings.json`:
 
@@ -29,13 +31,44 @@ Add to `~/.claude/settings.json`:
 }
 ```
 
-**4. Use in Claude Code**
+If you want the most explicit server command, this also works:
+
+```json
+{
+  "mcpServers": {
+    "wapisender": {
+      "command": "npx",
+      "args": ["-y", "-p", "wapisender-mcp@latest", "wapisender-mcp-server"]
+    }
+  }
+}
+```
+
+For Codex, add to `~/.codex/config.toml`:
+
+```toml
+[mcp_servers.wapisender]
+command = "npx"
+args = ["wapisender-mcp@latest"]
+```
+
+**4. Use in your client**
 
 ```
 > login to wapisender
 > send a whatsapp message to +5491112345678 saying "Hello from Claude!"
 > list my flows
 > generate a support flow that asks users if they need sales or billing help
+```
+
+## CLI Commands
+
+```bash
+npx wapisender-mcp                 # start the MCP server over stdio
+npx wapisender-mcp serve           # start the MCP server over stdio
+npx wapisender-mcp login --token <your-token>
+npx wapisender-mcp logout
+npx wapisender-mcp status
 ```
 
 ## Available Tools (25)
