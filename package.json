@@ -1,7 +1,7 @@
 {
   "name": "wapisender-mcp",
   "version": "0.1.1",
-  "description": "Official MCP server for WapiSender — send WhatsApp messages, manage flows, contacts, and instances directly from Claude Code.",
+  "description": "Official MCP server for WapiSender — send WhatsApp messages, manage flows, contacts, and instances from MCP-compatible clients.",
   "type": "module",
   "bin": {
     "wapisender-mcp": "dist/cli.js",
@@ -40,6 +40,7 @@
     "mcp",
     "wapisender",
     "whatsapp",
+    "codex",
     "claude",
     "claude-code",
     "modelcontextprotocol"
