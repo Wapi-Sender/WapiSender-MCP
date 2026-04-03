@@ -16,7 +16,20 @@ npx wapisender-mcp login --token <your-token>
 
 **3. Add to your MCP client**
 
-The package now starts the MCP server when invoked with no subcommand, so this works:
+See the client-specific setup below.
+
+**4. Use in your client**
+
+```
+> login to wapisender
+> send a whatsapp message to +5491112345678 saying "Hello from Claude!"
+> list my flows
+> generate a support flow that asks users if they need sales or billing help
+```
+
+## Client Setup
+
+### Claude Code
 
 Add to `~/.claude/settings.json`:
 
@@ -31,7 +44,7 @@ Add to `~/.claude/settings.json`:
 }
 ```
 
-If you want the most explicit server command, this also works:
+Explicit server form:
 
 ```json
 {
@@ -44,7 +57,9 @@ If you want the most explicit server command, this also works:
 }
 ```
 
-For Codex, add to `~/.codex/config.toml`:
+### Codex
+
+Add to `~/.codex/config.toml`:
 
 ```toml
 [mcp_servers.wapisender]
@@ -52,13 +67,12 @@ command = "npx"
 args = ["wapisender-mcp@latest"]
 ```
 
-**4. Use in your client**
+Explicit server form:
 
-```
-> login to wapisender
-> send a whatsapp message to +5491112345678 saying "Hello from Claude!"
-> list my flows
-> generate a support flow that asks users if they need sales or billing help
+```toml
+[mcp_servers.wapisender]
+command = "npx"
+args = ["-y", "-p", "wapisender-mcp@latest", "wapisender-mcp-server"]
 ```
 
 ## CLI Commands
