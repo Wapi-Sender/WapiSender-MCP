@@ -72,6 +72,19 @@ Most clients can run it directly with:
 npx wapisender-mcp@latest
 ```
 
+If you prefer a local installation, install it from npm:
+
+```bash
+npm install -g wapisender-mcp@latest
+```
+
+After installing globally you can run the CLI and server directly:
+
+```bash
+wapisender-mcp
+wapisender-mcp-server
+```
+
 The package includes:
 
 - `wapisender-mcp`: CLI entrypoint
