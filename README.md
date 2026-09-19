@@ -10,12 +10,51 @@ It supports:
 
 - Logging into your WapiSender account with an MCP token
 - Listing and switching between WhatsApp instances
-- Checking instance status and QR codes
-- Sending text, media, and location WhatsApp messages
-- Managing contacts
-- Creating, updating, activating, and deactivating flows
+- Refreshing live instance status and metadata
+- Sending text, media, voice notes, stickers, locations, buttons, lists, reactions, contact cards, and polls
+- Searching contacts and changing contact block status
+- Creating, updating, cloning, simulating, activating, and inspecting flows
 - Managing instance webhooks
 - Managing AI provider credentials used by flows
+
+## What's New in v0.2.0
+
+This release realigns the MCP with the current WapiSender application and expands the catalog from 25 to 42 tools.
+
+### Messaging
+
+- Added voice-note, sticker, button, list, reaction, contact-card, poll, bulk-text, and personalized-template tools.
+- Updated interactive button payloads to use reply buttons shaped as `type`, `displayText`, and `id`.
+- Updated list rows to use `rowId` and list footers to use `footerText`.
+- Corrected the current reaction, poll, contact-card, audio, media, and location payload contracts.
+- Message tools now distinguish API acceptance from recipient-visible delivery.
+
+### Flows
+
+- Added current `message_received` and `manual` trigger types.
+- Added the current webhook and human-handoff node definitions.
+- Added atomic full-flow creation and cloning.
+- Added race-safe single-node updates through the dedicated node route.
+- Added `simulate_flow` and `get_flow_logs` for testing and execution inspection.
+
+### Contacts, instances, and webhooks
+
+- Added live instance refresh through `?live=true`.
+- Added client-side contact search and pagination over WapiSender's normalized contact response.
+- Replaced the unsupported contact upsert with `set_contact_block_status`.
+- Corrected webhook updates to send the nested `{ webhook: ... }` contract.
+
+### AI providers and self-hosting
+
+- Added Ollama, Mistral, DeepSeek, Groq, Kimi, and Hugging Face alongside the existing providers.
+- Added credential updates for API-key rotation, base URLs, models, labels, and active state.
+- Added `WAPISENDER_BASE_URL` for self-hosted WapiSender deployments.
+
+### Compatibility cleanup
+
+- Removed MCP tools for application routes that do not currently exist: QR retrieval, disconnect, number checking, chat history, mark-as-read, and contact deletion.
+- Added 30-second API request timeouts and clearer HTTP error handling.
+- Replaced duplicated test-only schemas with contract tests against the actual registered tools and emitted payloads.
 
 ## Requirements
 
