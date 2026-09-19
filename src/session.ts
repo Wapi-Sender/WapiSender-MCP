@@ -52,6 +52,16 @@ export class Session {
     }
   }
 
+  updateInstances(instances: Instance[]): void {
+    if (!this.state) return
+    // Preserve active instance if it still exists in the new list
+    const stillActive = this.state.activeInstance
+      ? instances.find(i => i.id === this.state!.activeInstance!.id) ?? null
+      : null
+    this.state.instances = instances
+    this.state.activeInstance = stillActive
+  }
+
   switchInstance(idOrName: string): Instance {
     if (!this.state) throw new Error('Not logged in.')
     const inst = this.state.instances.find(
@@ -69,7 +79,17 @@ export class Session {
   getSummary(): string {
     if (!this.state) return 'Not logged in.'
     const active = this.state.activeInstance
-    return `Logged in as ${this.state.email} | ${this.state.instances.length} instance(s) | Active: ${active?.instance_name ?? 'none'}`
+    const lines = [
+      this.state.email || this.state.userId
+        ? `Account: ${this.state.email || 'authenticated user'}${this.state.userId ? ` (ID: ${this.state.userId})` : ''}`
+        : 'Account: authenticated with MCP token',
+      `Instances (${this.state.instances.length}):`,
+      ...this.state.instances.map(i =>
+        `  - ${i.instance_name} [${i.status ?? 'unknown'}]${active?.id === i.id ? ' ← active' : ''}`
+      ),
+      active ? `\nActive instance: ${active.instance_name} (${active.id})` : '\nNo active instance.',
+    ]
+    return lines.join('\n')
   }
 }
 

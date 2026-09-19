@@ -5,10 +5,10 @@ import { join } from 'node:path'
 
 const CREDS_DIR = join(homedir(), '.config', 'wapisender-mcp')
 const CREDS_FILE = join(CREDS_DIR, 'credentials.json')
-const BASE_URL = 'https://wapisender.com'
+const BASE_URL = (process.env.WAPISENDER_BASE_URL || 'https://wapisender.com').replace(/\/$/, '')
 
 async function login(token: string) {
-  const res = await fetch(`${BASE_URL}/api/instances`, {
+  const res = await fetch(`${BASE_URL}/api/instances?live=true`, {
     headers: { 'Authorization': `Bearer ${token}` }
   })
 

@@ -1,6 +1,6 @@
 {
   "name": "wapisender-mcp",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Official MCP server for WapiSender — send WhatsApp messages, manage flows, contacts, and instances from MCP-compatible clients.",
   "type": "module",
   "bin": {

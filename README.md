@@ -38,6 +38,12 @@ The package includes:
 - `wapisender-mcp`: CLI entrypoint
 - `wapisender-mcp-server`: MCP server entrypoint over stdio
 
+For a self-hosted WapiSender deployment, set `WAPISENDER_BASE_URL` for both the CLI login and the MCP server process:
+
+```bash
+export WAPISENDER_BASE_URL="https://your-wapisender.example.com"
+```
+
 ## Quick Start
 
 ### 1. Generate your MCP token
@@ -224,7 +230,7 @@ npx wapisender-mcp status
 Save credentials:
 
 ```bash
-npx wapisender-mcp login --token ws_xxxxxxxxxxxxxxxxx
+npx wapisender-mcp login --token wapi_xxxxxxxxxxxxxxxxx
 ```
 
 Check whether credentials are saved:
@@ -241,7 +247,7 @@ npx wapisender-mcp logout
 
 ## Available Tools
 
-There are 25 tools grouped into 7 areas.
+There are 42 tools grouped into 7 areas. The catalog is generated from routes that currently exist in WapiSender; unsupported chat-history, contact-delete, QR, disconnect, and number-check routes are intentionally not exposed.
 
 ### Auth
 
@@ -292,12 +298,24 @@ Example:
 }
 ```
 
-Example using an instance name:
+#### `refresh_instances`
+
+Re-fetches the instance list from the API and updates the session — without requiring a full re-login. Useful after adding a new instance.
+
+Example:
 
 ```json
-{
-  "instanceIdOrName": "Sales-BR"
-}
+{}
+```
+
+#### `get_session_info`
+
+Returns the current session state: who you are logged in as, all instances, and which instance is active. Makes no API calls — reads local session only.
+
+Example:
+
+```json
+{}
 ```
 
 ### Instance
@@ -312,21 +330,11 @@ Example:
 {}
 ```
 
-#### `get_qr_code`
-
-Returns the QR code needed to connect WhatsApp on the active instance.
-
-Example:
-
-```json
-{}
-```
-
 ### Messaging
 
 #### `send_text`
 
-Sends a text WhatsApp message.
+Submits a text WhatsApp message. API acceptance does not prove recipient delivery.
 
 Example:
 
@@ -339,7 +347,7 @@ Example:
 
 #### `send_media`
 
-Sends an image, video, or document from a public URL.
+Sends an image, video, or document from a public URL. `caption` is optional and omitted when not provided.
 
 Example image:
 
@@ -363,6 +371,30 @@ Example document:
 }
 ```
 
+#### `send_audio`
+
+Sends a WhatsApp audio/voice note from a public URL.
+
+Example:
+
+```json
+{
+  "to": "5491112345678",
+  "url": "https://example.com/voice-note.ogg"
+}
+```
+
+#### `send_sticker`
+
+Submits a WhatsApp sticker from a public image URL.
+
+```json
+{
+  "to": "5491112345678",
+  "url": "https://example.com/sticker.webp"
+}
+```
+
 #### `send_location`
 
 Sends a WhatsApp location pin.
@@ -374,7 +406,128 @@ Example:
   "to": "5491112345678",
   "lat": -34.6037,
   "lng": -58.3816,
-  "name": "Buenos Aires Office"
+  "name": "Buenos Aires Office",
+  "address": "Buenos Aires, Argentina"
+}
+```
+
+#### `send_buttons`
+
+Sends an interactive button message. The recipient sees up to 3 tappable buttons.
+
+Example:
+
+```json
+{
+  "to": "5491112345678",
+  "title": "Choose an option",
+  "body": "How can we help you today?",
+  "footer": "WapiSender Support",
+  "buttons": [
+    { "id": "sales", "title": "Sales" },
+    { "id": "support", "title": "Support" },
+    { "id": "billing", "title": "Billing" }
+  ]
+}
+```
+
+#### `send_list`
+
+Sends an interactive list message. A button opens a scrollable menu of options.
+
+Example:
+
+```json
+{
+  "to": "5491112345678",
+  "title": "Our Services",
+  "body": "Please select a department:",
+  "footer": "We reply within 1 hour",
+  "buttonText": "View options",
+  "sections": [
+    {
+      "title": "Support",
+      "rows": [
+        { "id": "tech", "title": "Technical Support", "description": "Hardware & software issues" },
+        { "id": "billing", "title": "Billing", "description": "Invoices & payments" }
+      ]
+    }
+  ]
+}
+```
+
+#### `send_reaction`
+
+Reacts to a WhatsApp message with an emoji. Pass an empty string `""` to remove a reaction.
+
+Example:
+
+```json
+{
+  "to": "5491112345678",
+  "messageId": "ABC123DEF456",
+  "emoji": "👍"
+}
+```
+
+#### `send_contact_card`
+
+Sends a WhatsApp contact card (vCard). Shares a contact's name and phone number.
+
+Example:
+
+```json
+{
+  "to": "5491112345678",
+  "contactName": "Alice Smith",
+  "contactPhone": "5491187654321",
+  "organization": "Acme Corp"
+}
+```
+
+#### `send_poll`
+
+Sends a WhatsApp poll with a question and 2-12 options.
+
+Example:
+
+```json
+{
+  "to": "5491112345678",
+  "question": "Which plan do you prefer?",
+  "options": ["Starter", "Pro", "Enterprise"],
+  "selectableCount": 1
+}
+```
+
+#### `send_bulk_text`
+
+Sends the same text to multiple recipients and returns a per-recipient success/failure summary.
+
+Example:
+
+```json
+{
+  "recipients": ["5491112345678", "5491187654321"],
+  "message": "Hello from WapiSender MCP",
+  "dedupe": true
+}
+```
+
+#### `send_template_text`
+
+Sends personalized text messages by replacing `{{placeholders}}` with each recipient's variables.
+
+Example:
+
+```json
+{
+  "template": "Hi {{name}}, your verification code is {{code}}.",
+  "recipients": [
+    { "to": "5491112345678", "variables": { "name": "Ana", "code": 123456 } },
+    { "to": "5491187654321", "variables": { "name": "Leo", "code": 654321 } }
+  ],
+  "dedupe": true
 }
 ```
 
@@ -382,13 +535,23 @@ Example:
 
 #### `list_contacts`
 
-Lists contacts on the active instance. You can optionally filter by search string and limit.
+Lists contacts on the active instance. Supports search, limit, and offset for pagination, and returns a compact formatted summary.
 
 Example:
 
 ```json
 {
-  "limit": 20
+  "limit": 20,
+  "offset": 0
+}
+```
+
+Page 2 example:
+
+```json
+{
+  "limit": 20,
+  "offset": 20
 }
 ```
 
@@ -413,17 +576,16 @@ Example:
 }
 ```
 
-#### `upsert_contact`
+#### `set_contact_block_status`
 
-Creates or updates a contact on the active instance.
+Blocks or unblocks a WhatsApp contact using the current WapiSender contact route.
 
 Example:
 
 ```json
 {
   "phone": "5491112345678",
-  "name": "Gilad",
-  "email": "gilad@example.com"
+  "status": "block"
 }
 ```
 
@@ -431,7 +593,7 @@ Example:
 
 #### `list_flows`
 
-Lists all flows on the active instance.
+Lists all flows on the active instance and returns a compact formatted summary (`id | name | status | trigger`).
 
 Example:
 
@@ -453,7 +615,7 @@ Example:
 
 #### `create_flow`
 
-Creates an empty flow shell.
+Creates an empty flow shell. Current trigger types are `message_received` and `manual`; keyword matching belongs in a trigger node's `data`.
 
 Example:
 
@@ -461,7 +623,8 @@ Example:
 {
   "name": "Support Router",
   "description": "Routes inbound messages to sales or support",
-  "triggerType": "all_messages"
+  "triggerType": "message_received",
+  "triggerConfig": {}
 }
 ```
 
@@ -479,7 +642,7 @@ Minimal example:
       "id": "trigger-1",
       "type": "trigger",
       "position": { "x": 250, "y": 100 },
-      "data": { "triggerType": "all_messages" }
+      "data": { "match": "any", "keywords": [] }
     },
     {
       "id": "message-1",
@@ -487,7 +650,7 @@ Minimal example:
       "position": { "x": 250, "y": 350 },
       "data": {
         "messageType": "text",
-        "message": "Hello. Reply with sales or support."
+        "text": "Hello. Reply with sales or support."
       }
     },
     {
@@ -515,14 +678,14 @@ Example:
   "flowId": "a07692d5-a56c-4027-9cb9-19b44c33eb2c",
   "nodeId": "message-1",
   "data": {
-    "message": "Hello. Reply with sales, support, or billing."
+    "text": "Hello. Reply with sales, support, or billing."
   }
 }
 ```
 
 #### `generate_and_save_flow`
 
-Creates a flow shell from a natural-language description, then returns the schema guidance needed to finish the node graph.
+Generates a complete WhatsApp flow from a plain-English description and saves it **fully in one step** — including the node graph. The AI generates the nodes and edges, then this tool creates and saves everything atomically.
 
 Example:
 
@@ -530,7 +693,10 @@ Example:
 {
   "name": "Lead Qualification",
   "description": "A flow that greets the user, asks for their company size, and routes enterprise leads to sales.",
-  "triggerType": "all_messages"
+  "triggerType": "message_received",
+  "triggerConfig": {},
+  "nodes": [ ... ],
+  "edges": [ ... ]
 }
 ```
 
@@ -538,6 +704,19 @@ Natural-language example:
 
 ```text
 Generate and save a WhatsApp flow named "Lead Qualification" that greets the user, asks for company size, and routes enterprise leads to sales.
+```
+
+#### `rename_flow`
+
+Renames an existing flow without touching its node graph or activation state.
+
+Example:
+
+```json
+{
+  "flowId": "a07692d5-a56c-4027-9cb9-19b44c33eb2c",
+  "name": "New Flow Name"
+}
 ```
 
 #### `activate_flow`
@@ -569,12 +748,14 @@ Example:
 `update_flow_definition` and `generate_and_save_flow` use these node types:
 
 ```text
-trigger:      { type: "trigger", data: { triggerType: "all_messages"|"keyword", keyword?: string } }
-send_message: { type: "send_message", data: { messageType: "text"|"image"|"audio", message: string, url?: string } }
-condition:    { type: "condition", data: { variable: string, operator: "equals"|"contains"|"starts_with", value: string } }
-delay:        { type: "delay", data: { delaySeconds: number } }
-wait_for_reply:{ type: "wait_for_reply", data: { timeoutSeconds: number, timeoutAction: "continue"|"end" } }
-ai_agent:     { type: "ai_agent", data: { mode: "reply"|"router"|"extract", credentialId: string, provider: string, model: string, systemPrompt: string, promptTemplate: string } }
+trigger:      { type: "trigger", data: { match: "any"|"contains"|"exact"|"regex", keywords: string[] } }
+send_message: { type: "send_message", data: { messageType: "text"|"image"|"video"|"document"|"audio"|"voice"|"buttons"|"list"|"location"|"poll"|"sticker", text?: string } }
+condition:    { type: "condition", data: { source: "last_message"|"custom", variableName?: string, operator: "equals"|"contains"|"starts_with"|"ends_with"|"regex", value: string } }
+delay:        { type: "delay", data: { amount: number, unit: "seconds"|"minutes"|"hours"|"days" } }
+webhook:      { type: "webhook", data: { method: string, url: string, headers?: object, body?: string, responseVariable?: string } }
+wait_for_reply:{ type: "wait_for_reply", data: {} }
+human_handoff:{ type: "human_handoff", data: { message?: string, resumeAfterMinutes: number } }
+ai_agent:     { type: "ai_agent", data: { mode: "reply"|"router"|"extract", credentialId: string, provider: string, model: string, systemPrompt: string, promptTemplate: string, outputVariable: string } }
 end:          { type: "end", data: {} }
 ```
 
@@ -588,6 +769,54 @@ Recommended positioning:
 
 ```text
 Start near { x: 250, y: 100 } and space nodes vertically by about 250px.
+```
+
+#### `delete_flow`
+
+Permanently deletes a flow. This cannot be undone.
+
+Example:
+
+```json
+{
+  "flowId": "a07692d5-a56c-4027-9cb9-19b44c33eb2c"
+}
+```
+
+#### `clone_flow`
+
+Duplicates an existing flow under a new name. The clone starts inactive so you can edit before activating.
+
+Example:
+
+```json
+{
+  "flowId": "a07692d5-a56c-4027-9cb9-19b44c33eb2c",
+  "name": "Support Router v2"
+}
+```
+
+#### `simulate_flow`
+
+Simulates an incoming message and returns flow logs without sending WhatsApp messages.
+
+```json
+{
+  "flowId": "a07692d5-a56c-4027-9cb9-19b44c33eb2c",
+  "message": "I need support",
+  "from": "5491112345678"
+}
+```
+
+#### `get_flow_logs`
+
+Returns recent execution logs for a flow.
+
+```json
+{
+  "flowId": "a07692d5-a56c-4027-9cb9-19b44c33eb2c",
+  "limit": 50
+}
 ```
 
 ### Webhooks
@@ -604,7 +833,21 @@ Example:
 
 #### `set_webhook`
 
-Creates or updates the webhook URL and event subscriptions.
+Creates or updates the webhook URL and event subscriptions. The `events` array accepts only known event types:
+
+```
+MESSAGES_UPSERT         — new message received or sent
+MESSAGES_UPDATE         — message status update
+MESSAGE_RECEIPT_UPDATE  — delivery/read receipt updates
+CONNECTION_UPDATE       — connection state changes
+QRCODE_UPDATED          — new QR code available
+CONTACTS_UPSERT         — contact added or updated
+CONTACTS_UPDATE         — contact updated
+PRESENCE_UPDATE         — user presence changes
+CHATS_UPSERT            — chat metadata updates
+GROUPS_UPSERT           — group created or updated
+GROUP_PARTICIPANTS_UPDATE — group participant changes
+```
 
 Example:
 
@@ -612,7 +855,9 @@ Example:
 {
   "url": "https://example.com/api/webhooks/wapisender",
   "enabled": true,
-  "events": ["MESSAGES_UPSERT"]
+  "byEvents": false,
+  "base64": false,
+  "events": ["MESSAGES_UPSERT", "CONNECTION_UPDATE"]
 }
 ```
 
@@ -639,6 +884,12 @@ Supported providers:
 - `gemini`
 - `xai`
 - `openrouter`
+- `ollama`
+- `mistral`
+- `deepseek`
+- `groq`
+- `kimi`
+- `huggingface`
 
 Example:
 
@@ -660,6 +911,32 @@ Example:
 ```json
 {
   "credentialId": "cred_12345678"
+}
+```
+
+#### `delete_ai_credential`
+
+Removes a saved AI provider credential from the active instance.
+
+Example:
+
+```json
+{
+  "credentialId": "cred_12345678"
+}
+```
+
+#### `update_ai_credential`
+
+Updates the label, default model, base URL, active state, or API key of an existing AI provider credential.
+
+Example:
+
+```json
+{
+  "credentialId": "cred_12345678",
+  "label": "OpenAI Staging",
+  "defaultModel": "gpt-4o"
 }
 ```
 

@@ -11,7 +11,7 @@ import { aiCredentialsTools } from './tools/ai_credentials.js'
 
 const server = new McpServer({
   name: 'wapisender-mcp',
-  version: '0.1.0',
+  version: '0.2.0',
 })
 
 const allTools = [
@@ -38,4 +38,4 @@ for (const tool of allTools) {
 const transport = new StdioServerTransport()
 await server.connect(transport)
 
-console.error('WapiSender MCP server running. 25 tools registered.')
+console.error(`WapiSender MCP server running. ${allTools.length} tools registered.`)
