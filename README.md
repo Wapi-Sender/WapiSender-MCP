@@ -1122,6 +1122,8 @@ wapisender-mcp
 
 The top-level `README.md` is the package README used by npm and by MCP clients that display package documentation, so keeping this file current keeps the Codex-facing package docs current as well.
 
+(Wapi Sender Site)[https://wapisender.com]
+
 ## License
 
 MIT
